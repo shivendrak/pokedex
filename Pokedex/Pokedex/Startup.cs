@@ -33,6 +33,11 @@ namespace Pokedex
             services.AddTransient<IPokeApiService, PokeApiService>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddMediatR(Assembly.GetExecutingAssembly());
+            
+            // Using in memory cache for simplicity
+            // In production redis might be a better fit (depends on requirements)
+            services.AddDistributedMemoryCache();
+            
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
