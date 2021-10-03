@@ -1,16 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Reflection;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Pokedex.Infrastructure;
 
 namespace Pokedex
 {
@@ -27,10 +24,11 @@ namespace Pokedex
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddMediatR(Assembly.GetExecutingAssembly());
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pokedex", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = ApplicationConstants.ApplicationName, Version = "v1" });
             });
         }
 
