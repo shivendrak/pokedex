@@ -27,5 +27,15 @@ namespace Pokedex.Controllers
             _logger.LogInformation("request forwarded to handler");
             return await _mediator.Send(request);
         }
+        
+        [HttpGet("translated/{pokemonName}")]
+        public async Task<PokemonDetailsResponse> GetTranslated(string pokemonName)
+        {
+            _logger.LogInformation("received request for pokemon: {PokemonName} with translation", pokemonName );
+            var request = new PokemonDetailsRequest(pokemonName);
+            request.WithTranslation = true;
+            _logger.LogInformation("request forwarded to handler");
+            return await _mediator.Send(request);
+        }
     }
 }

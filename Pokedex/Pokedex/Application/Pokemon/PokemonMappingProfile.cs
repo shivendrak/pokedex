@@ -1,14 +1,13 @@
 using System.Linq;
 using AutoMapper;
-using Pokedex.Application.Pokemon;
 
-namespace Pokedex.Infrastructure.Services
+namespace Pokedex.Application.Pokemon
 {
     public class PokemonMappingProfile : Profile
     {
         public PokemonMappingProfile()
         {
-            CreateMap<Pokemon, PokemonDetailsResponse>()
+            CreateMap<Infrastructure.Services.Pokemon, PokemonDetailsResponse>()
                 .ForMember(pService => pService.Habitat,
                     pRes =>
                         pRes.MapFrom(o => o.Habitat

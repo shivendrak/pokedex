@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Pokedex.Application.Pokemon;
 using Pokedex.Infrastructure.Exceptions;
+using Pokedex.Infrastructure.Services;
 using Pokedex.Tests.Infrastructure;
 using Xunit;
 
@@ -19,7 +20,7 @@ namespace Pokedex.Tests.UnitTests
         {
             _logger = new Mock<ILogger<PokemonDetailsHandler>>();
             _handler = new PokemonDetailsHandler(PokeApiService.Object, _mapper, 
-                _logger.Object, Cache.Object);
+                _logger.Object, Cache.Object, TranslationService.Object);
         }
 
         [Fact]
@@ -57,6 +58,66 @@ namespace Pokedex.Tests.UnitTests
             var isCached = CacheData.ContainsKey(Pikachu.Name);
             isCached.Should().BeTrue();
 
+            var pokemon = await _handler.Handle(request, CancellationToken.None);
+            PokeApiService.Verify(_=>_.GetPokemon(It.IsAny<string>()), Times.Once);
+            pokemon.Should().NotBeNull();
+        }
+        
+        [Fact]
+        public async Task ShouldReturn_ValidPokeMon_WithTranslatedDescription()
+        {
+            var request = Given.PokemonRequest().WithName(Pikachu.Name).WithTranslation();
+            var pokemon = await _handler.Handle(request, CancellationToken.None);
+
+            pokemon.Name.Should().Be(Pikachu.Name);
+            pokemon.Description.Should().Be(SakespeareDescription);
+            pokemon.Habitat.Should().Be(Pikachu.Habitat.Name);
+            pokemon.IsLegendary.Should().Be(Pikachu.IsLegendary);
+        }
+        
+        [Fact]
+        public async Task ShouldReturn_ValidTranslatedPokeMon_YodaLanguage()
+        {
+            // When Cave
+            var request = Given.PokemonRequest().WithName(CavePokemon.Name).WithTranslation();
+            var pokemon = await _handler.Handle(request, CancellationToken.None);
+
+            pokemon.Name.Should().Be(CavePokemon.Name);
+            pokemon.Description.Should().Be(YodaDescription);
+            pokemon.Habitat.Should().Be(CavePokemon.Habitat.Name);
+            pokemon.IsLegendary.Should().Be(CavePokemon.IsLegendary);
+            
+            // When Legendary
+            request = Given.PokemonRequest().WithName(LegedaryPokemon.Name).WithTranslation();
+            pokemon = await _handler.Handle(request, CancellationToken.None);
+
+            pokemon.Name.Should().Be(LegedaryPokemon.Name);
+            pokemon.Description.Should().Be(YodaDescription);
+            pokemon.Habitat.Should().Be(LegedaryPokemon.Habitat.Name);
+            pokemon.IsLegendary.Should().Be(LegedaryPokemon.IsLegendary);
+        }
+        
+        [Fact]
+        public async Task ShouldReturn_ValidPokeMon_WhenTranslationFails()
+        {
+            var pokemonDesc = "shouldfail";
+            var pokemonName = "translationFailPokemon";
+            var pokemon = GetPokemon(pokemonName, desc: pokemonDesc);
+            PokeMonData.Add(pokemonName,pokemon);
+            
+            var request = Given.PokemonRequest().WithName(pokemonName).WithTranslation();
+            var pokemonDetails = await _handler.Handle(request, CancellationToken.None);
+
+            pokemonDetails.Should().NotBeNull();
+            pokemonDetails.Description.Should().Be(pokemonDesc);
+        }
+        
+        [Fact]
+        public async Task ShouldReturn_ValidTranslatedPokeMon_FromCache()
+        {
+            var request = Given.PokemonRequest().WithName(Pikachu.Name).WithTranslation();
+            await _handler.Handle(request, CancellationToken.None);
+            
             var pokemon = await _handler.Handle(request, CancellationToken.None);
             PokeApiService.Verify(_=>_.GetPokemon(It.IsAny<string>()), Times.Once);
             pokemon.Should().NotBeNull();

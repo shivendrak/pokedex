@@ -9,5 +9,6 @@ namespace Pokedex.Infrastructure
         
         public const string TranslationApiClientName = "funtranslationsapiclient";
         public const string TranslationApiBaseUrl = "https://api.funtranslations.com/translate/";
+        public const string TranslationCacheKey = "{0}_Translation";
     }
 }

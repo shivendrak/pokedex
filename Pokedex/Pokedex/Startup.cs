@@ -36,6 +36,7 @@ namespace Pokedex
             });
             
             services.AddTransient<IPokeApiService, PokeApiService>();
+            services.AddTransient<IFunTranslationApiService, FunTranslationApiService>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddMediatR(Assembly.GetExecutingAssembly());
             

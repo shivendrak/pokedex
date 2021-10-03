@@ -16,5 +16,11 @@ namespace Pokedex.Tests.Infrastructure
             request.Name = name;
             return request;
         }
+        
+        public static PokemonDetailsRequest WithTranslation(this PokemonDetailsRequest request)
+        {
+            request.WithTranslation = true;
+            return request;
+        }
     }
 }
