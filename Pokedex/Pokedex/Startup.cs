@@ -30,6 +30,11 @@ namespace Pokedex
                 c.BaseAddress = new Uri(ApplicationConstants.PokeApiBaseUrl);
             });
             
+            services.AddHttpClient(ApplicationConstants.TranslationApiClientName, c =>
+            {
+                c.BaseAddress = new Uri(ApplicationConstants.TranslationApiBaseUrl);
+            });
+            
             services.AddTransient<IPokeApiService, PokeApiService>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddMediatR(Assembly.GetExecutingAssembly());
