@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using MediatR;
 
 namespace Pokedex.Application.Pokemon
@@ -8,6 +9,8 @@ namespace Pokedex.Application.Pokemon
         {
             Name = name;
         }
+        
+        [Required]
         public string Name { get; set; }
         public bool WithTranslation { get; set; }
     }

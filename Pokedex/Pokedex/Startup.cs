@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Pokedex.Infrastructure;
+using Pokedex.Infrastructure.Services;
 
 namespace Pokedex
 {
@@ -29,6 +30,8 @@ namespace Pokedex
                 c.BaseAddress = new Uri(ApplicationConstants.PokeApiBaseUrl);
             });
             
+            services.AddTransient<IPokeApiService, PokeApiService>();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddMediatR(Assembly.GetExecutingAssembly());
             services.AddControllers();
             services.AddSwaggerGen(c =>

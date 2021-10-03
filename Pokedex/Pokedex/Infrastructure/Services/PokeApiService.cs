@@ -18,7 +18,7 @@ namespace Pokedex.Infrastructure.Services
             _logger = logger;
         }
 
-        public async Task<PokeApiPokemon> GetPokemon(string name)
+        public async Task<Pokemon> GetPokemon(string name)
         {
             var client = _httpClientFactory.CreateClient(ApplicationConstants.PokeApiClientName);
             
@@ -33,7 +33,7 @@ namespace Pokedex.Infrastructure.Services
             }
             
             var jsonString = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<PokeApiPokemon>(jsonString);
+            return JsonSerializer.Deserialize<Pokemon>(jsonString);
         }
     }
 }

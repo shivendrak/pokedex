@@ -6,10 +6,10 @@ namespace Pokedex.Infrastructure.Services
 {
     public interface IPokeApiService
     {
-        Task<PokeApiPokemon> GetPokemon(string name);
+        Task<Pokemon> GetPokemon(string name);
     }
     
-    public class PokeApiPokemon
+    public class Pokemon
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }
