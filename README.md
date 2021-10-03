@@ -53,3 +53,9 @@
     Hence to keep it simple, I have made an assumpetion that the cache would never expire. In real production case
     this would never be the case.
 
+    6. For production systems, I would configure observability tools like Graphna, or Azure App Insights.
+
+    7. Since this application primarily depends on external source for its data, it is necessary to implement dependency health checks & circuit breaker.
+    I did not find any documentation about the health checks of poke api and fun translator api. Also, instead of circuit breaker I have implemented a retry policy
+    using polly. 
+

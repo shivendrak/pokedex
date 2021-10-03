@@ -1,13 +1,18 @@
 using System;
+using System.IO;
+using System.Net;
 using System.Reflection;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Pokedex.Infrastructure;
+using Pokedex.Infrastructure.Exceptions;
 using Pokedex.Infrastructure.Services;
 using Polly;
 
@@ -45,6 +50,7 @@ namespace Pokedex
             services.AddDistributedMemoryCache();
             
             services.AddControllers();
+            services.AddHealthChecks();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = ApplicationConstants.ApplicationName, Version = "v1" });
@@ -61,6 +67,9 @@ namespace Pokedex
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pokedex v1"));
             }
 
+            SetExceptionHandling(app);
+
+            
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -70,6 +79,29 @@ namespace Pokedex
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health");
+            });
+        }
+
+        private static void SetExceptionHandling(IApplicationBuilder app)
+        {
+            app.UseExceptionHandler(errorApp =>
+            {
+                errorApp.Run(async context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError; ;
+                    context.Response.ContentType = "text/html";
+                    var exceptionHandlerPathFeature =
+                        context.Features.Get<IExceptionHandlerPathFeature>();
+
+                    if (exceptionHandlerPathFeature?.Error is DomainException)
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        await context.Response.WriteAsync(exceptionHandlerPathFeature.Error.Message);
+                    } 
+                    else
+                        await context.Response.WriteAsync("Internal Server Error");
+                });
             });
         }
     }

@@ -1,9 +1,11 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Pokedex.Infrastructure.Exceptions;
 
 namespace Pokedex.Infrastructure.Services
 {
@@ -29,7 +31,8 @@ namespace Pokedex.Infrastructure.Services
             {
                 _logger.LogWarning("Unable to fetch information for pokemon: {PokemonName}", name);
                 _logger.LogDebug(response.ReasonPhrase);
-                throw new Exception("Something went wrong");
+                return response.StatusCode == HttpStatusCode.NotFound ? null 
+                    : throw new Exception("something went wrong");
             }
             
             var jsonString = await response.Content.ReadAsStringAsync();

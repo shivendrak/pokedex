@@ -31,25 +31,31 @@ namespace Pokedex.Application.Pokemon
         }
         public async Task<PokemonDetailsResponse> Handle(PokemonDetailsRequest request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Fetching pokemon");
             var pokemonDetails = await GetPokemon(request.Name);
             if (!request.WithTranslation) return pokemonDetails;
             
+            _logger.LogInformation("Fetching translation");
             pokemonDetails.Description = await GetTranslation(pokemonDetails);
             return pokemonDetails;
         }
         
         private async Task<string> GetTranslation(PokemonDetailsResponse pokemon)
         {
+            _logger.LogInformation("Attempting to find translation in cache");
             var cacheKey = string.Format(ApplicationConstants.TranslationCacheKey, pokemon.Name);
             var translation = await _cache.GetObjectAsync<string>(cacheKey);
             if (!string.IsNullOrEmpty(translation))
             {
                 return translation;
             }
+            _logger.LogInformation("Translation not found in cache");
             var language = pokemon.IsLegendary || pokemon.Habitat == "cave"
                 ? TranslationLanguage.Yoda
                 : TranslationLanguage.Shakespeare;
             translation = await _translationApiService.Translate(pokemon.Description, language);
+            
+            _logger.LogInformation("Putting translation into cache with key:{CacheKey}", cacheKey);
             await _cache.SetObjectAsync(cacheKey, translation);
             return translation;
         }
@@ -64,8 +70,9 @@ namespace Pokedex.Application.Pokemon
             var pokemon = await _pokeApiService.GetPokemon(pokemonName);
             if (pokemon == null || string.IsNullOrEmpty(pokemon.Name)) 
                 throw new DomainException($"Pokemon with name: {pokemonName} does not exist.");
-            
+
             var pokemonDetails = _mapper.Map<PokemonDetailsResponse>(pokemon);
+            _logger.LogInformation("Putting pokemon into cache with key:{CacheKey}", pokemonName);
             await _cache.SetObjectAsync(pokemonName, pokemonDetails);
             return pokemonDetails;
         }
