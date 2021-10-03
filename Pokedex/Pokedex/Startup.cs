@@ -24,6 +24,11 @@ namespace Pokedex
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddHttpClient(ApplicationConstants.PokeApiClientName, c =>
+            {
+                c.BaseAddress = new Uri(ApplicationConstants.PokeApiBaseUrl);
+            });
+            
             services.AddMediatR(Assembly.GetExecutingAssembly());
             services.AddControllers();
             services.AddSwaggerGen(c =>
